@@ -25,6 +25,24 @@ Icon license notices are in [third-party/lucide-LICENSE.txt](third-party/lucide-
 
 ## Submit your work
 
+
+
 1. [Fork Campus Stores](https://github.com/virinchi-healthcare/campus-stores/fork) into your GitHub account. Complete the candidate brief and push your changes to your public fork. In your README, point reviewers to your work and explain the decision you made.
 2. In your fork, open **Commits**, select the final commit you want reviewed, and copy the page URL. It should look like `https://github.com/YOUR-USERNAME/campus-stores/commit/COMMIT-SHA`.
 3. [Submit your work through the Google Form](https://docs.google.com/forms/d/e/1FAIpQLScvzoh1R4WS-SkiwAVBQbMvniieJYSoOEfLMyVo5CyjOvYUgQ/viewform). Your **roll number**, **email ID**, and **final commit link from your public fork** are required. Enter your roll number and email ID in the form only.
+
+### My Product Engineering Improvements
+
+I focused on improving the equipment return process by making each physical item's return status independently trackable.
+
+**What I improved:**
+- Individual loan slips for each equipment unit.
+- Clear visibility of outstanding equipment.
+- Item-level return recording.
+- Better handover information for the next shift.
+
+**My design decision:**
+
+I chose individual item-level tracking because equipment belonging to one request may be returned at different times. This helps prevent incorrect closure of loan records and makes the process easier for the next shift.
+
+**Deliverables:** Updated application prototype and `Campus_Stores_Prototype.pptx`.
