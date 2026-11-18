@@ -1,5 +1,5 @@
 (() => {
-  const storageKey = "campus-stores.shift.v1";
+  const storageKey = "campus-stores.shift.v2";
   const root = document.getElementById("campus-stores");
   const q = (selector) => root.querySelector(selector);
   const requests = [
@@ -90,7 +90,7 @@
     ["Desk book", "messages-square"],
   ];
   const original = () => ({
-    version: 1,
+    version: 2,
     tab: "Requests",
     phase: 0,
     selected: "",
@@ -102,6 +102,30 @@
         asset: "MI-09",
         who: "Tara Shah",
         due: "Sat 10 am",
+        back: false,
+      },
+      {
+        num: 402,
+        req: "RQ-214",
+        asset: "PR-04",
+        who: "Kabir Sen",
+        due: "Fri 8 pm",
+        back: false,
+      },
+      {
+        num: 403,
+        req: "RQ-214",
+        asset: "SP-02",
+        who: "Kabir Sen",
+        due: "Fri 8 pm",
+        back: false,
+      },
+      {
+        num: 404,
+        req: "RQ-214",
+        asset: "AD-12",
+        who: "Kabir Sen",
+        due: "Fri 8 pm",
         back: false,
       },
     ],
@@ -222,8 +246,8 @@
   }
   function register() {
     let html = head(
-      "Loan register",
-      "One slip per physical unit",
+      "Equipment return checklist",
+      "Track every physical unit under its approved request",
       s.editing
         ? btn("Cancel", "cancel")
         : btn("New issue slip", "new", "", "primary"),
@@ -264,6 +288,7 @@
         '</div><button type="submit" class="primary">Save issue slip</button></form>'
       );
     }
+
     html +=
       '<div class="buttons">' +
       ["Outstanding", "All slips"]
@@ -279,19 +304,101 @@
         )
         .join("") +
       "</div>";
-    const shown = s.loans
-      .filter((l) => !s.onlyOpen || !l.back)
-      .slice()
-      .reverse();
-    if (!shown.length) html += "<p>No outstanding slips.</p>";
-    for (const l of shown)
-      html += row(
-        "L-" + l.num + " · " + l.asset,
-        l.req + " · " + l.who + " · Due " + l.due,
-        l.back
-          ? badge("Returned")
-          : btn("Record return", "return", String(l.num)),
-      );
+
+    const visibleLoans = s.loans.filter((l) => !s.onlyOpen || !l.back);
+    const openCount = s.loans.filter((l) => !l.back).length;
+    const returnedCount = s.loans.length - openCount;
+    html +=
+      '<div class="checklist-summary" aria-live="polite"><strong>' +
+      returnedCount +
+      " of " +
+      s.loans.length +
+      " items returned</strong><span>" +
+      openCount +
+      " outstanding · " +
+      returnedCount +
+      " closed slips</span></div>";
+
+    const groups = requests
+      .map((r) => ({
+        request: r,
+        loans: s.loans.filter((l) => l.req === r.id),
+        allLoans: s.loans.filter((l) => l.req === r.id),
+      }))
+      .filter((g) => g.allLoans.length && (s.onlyOpen ? g.allLoans.some((l) => !l.back) : true));
+
+    if (!groups.length) {
+      html += '<p class="empty-state">No slips match this view.</p>';
+    }
+
+    for (const group of groups) {
+      const { request: r, allLoans } = group;
+      const done = allLoans.filter((l) => l.back).length;
+      const complete = done === allLoans.length;
+      html +=
+        '<section class="request-checklist"><div class="checklist-head"><div><small>' +
+        esc(r.id + " · " + r.club) +
+        "</small><h3>" +
+        esc(r.event) +
+        '</h3><span class="muted">Borrower: ' +
+        esc(allLoans[0].who) +
+        "</span></div>" +
+        badge(complete ? "All items returned" : done + " of " + allLoans.length + " returned", complete) +
+        '</div><div class="progress-track" role="progressbar" aria-label="Return progress for ' +
+        esc(r.id) +
+        '" aria-valuemin="0" aria-valuemax="' +
+        allLoans.length +
+        '" aria-valuenow="' +
+        done +
+        '"><span style="width:' +
+        Math.round((done / allLoans.length) * 100) +
+        '%"></span></div>';
+
+      for (const l of group.loans) {
+        const a = getAsset(l.asset);
+        const isAdapter = l.asset === "AD-12" && r.id === "RQ-214";
+        const returnText = isAdapter && s.phase >= 2
+          ? "Record Leela's return"
+          : "Record return";
+        html +=
+          '<div class="checklist-item"><div class="item-copy"><strong>' +
+          esc(a.type) +
+          " · " +
+          esc(a.id) +
+          '</strong><small>Loan L-' +
+          esc(l.num) +
+          " · Due " +
+          esc(l.due) +
+          "</small></div><div class=\"item-action\">" +
+          (l.back
+            ? badge("Returned", true)
+            : btn(returnText, "return", String(l.num))) +
+          "</div></div>";
+      }
+      if (complete) {
+        html +=
+          '<p class="complete-note">All ' +
+          allLoans.length +
+          " individual loan slips for this request are closed.</p>";
+      } else {
+        html +=
+          '<p class="checklist-hint">Verify each physical item before recording its return. Only the matching loan slip will close.</p>';
+      }
+      html += "</section>";
+    }
+
+    if (!s.onlyOpen) {
+      html += '<details class="slip-history"><summary>Individual loan slip history</summary>';
+      for (const l of s.loans.slice().reverse()) {
+        const a = getAsset(l.asset);
+        html += row(
+          "L-" + l.num + " · " + a.id,
+          l.req + " · " + l.who + " · Due " + l.due,
+          l.back ? badge("Returned", true) : badge("Outstanding"),
+        );
+      }
+      html += "</details>";
+    }
     return html;
   }
   function deskbook() {
@@ -410,7 +517,9 @@
         const l = s.loans.find((l) => l.num === Number(v));
         if (!l || l.back) return;
         l.back = true;
-        s.notice = l.asset + " returned to stock. Slip L-" + l.num + " closed.";
+        l.returnedAt = shifts[s.phase].time;
+        l.returnedBy = l.asset === "AD-12" && s.phase >= 2 ? "Leela Das" : "Counter staff";
+        s.notice = l.asset + " returned to stock. Individual slip L-" + l.num + " closed.";
         break;
       }
     }
@@ -463,7 +572,7 @@
   function restore(d) {
     if (
       !d ||
-      d.version !== 1 ||
+      d.version !== 2 ||
       !Object.hasOwn(screens, d.tab) ||
       !shifts[d.phase] ||
       (d.selected && !getReq(d.selected)) ||

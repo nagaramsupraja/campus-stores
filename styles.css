@@ -369,3 +369,110 @@ body > main {
     min-height: 44px;
   }
 }
+
+
+/* Request-level return checklist */
+#campus-stores .checklist-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 12px 0;
+  padding: 11px 13px;
+  background: var(--desk);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+#campus-stores .checklist-summary strong {
+  font-size: 15px;
+}
+#campus-stores .checklist-summary span,
+#campus-stores .muted {
+  color: var(--quiet);
+  font-size: 12px;
+}
+#campus-stores .request-checklist {
+  margin: 12px 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+}
+#campus-stores .checklist-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#campus-stores .checklist-head h3 {
+  margin: 3px 0;
+  font-size: 16px;
+}
+#campus-stores .progress-track {
+  height: 7px;
+  overflow: hidden;
+  margin: 11px 0 5px;
+  border-radius: 99px;
+  background: var(--desk);
+}
+#campus-stores .progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sel);
+  transition: width 160ms ease;
+}
+#campus-stores .checklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+#campus-stores .item-copy {
+  min-width: 0;
+}
+#campus-stores .item-copy strong,
+#campus-stores .item-copy small {
+  display: block;
+}
+#campus-stores .item-copy small {
+  margin-top: 2px;
+}
+#campus-stores .item-action {
+  flex: 0 0 auto;
+}
+#campus-stores .checklist-hint,
+#campus-stores .complete-note {
+  margin-top: 8px;
+  color: var(--quiet);
+  font-size: 12px;
+}
+#campus-stores .complete-note {
+  color: var(--oktxt);
+  font-weight: 600;
+}
+#campus-stores .slip-history {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+#campus-stores .slip-history summary {
+  margin-bottom: 8px;
+}
+#campus-stores .empty-state {
+  padding: 14px 0;
+  color: var(--quiet);
+}
+@container (max-width:420px) {
+  #campus-stores .checklist-item {
+    align-items: flex-start;
+  }
+  #campus-stores .item-action button {
+    max-width: 145px;
+    white-space: normal;
+  }
+}
